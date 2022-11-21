@@ -7,12 +7,7 @@ import 'book.dart';
 
 void main() {
   runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (context) => BookService()),
-      ],
-      child: const MyApp(),
-    ),
+    const MyApp(),
   );
 }
 
@@ -21,9 +16,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: HomePage(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => BookService()),
+      ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: HomePage(),
+      ),
     );
   }
 }
@@ -39,7 +39,7 @@ class _HomePageState extends State<HomePage> {
   final TextEditingController _textController = TextEditingController();
 
   String bookName = '';
-  int bookNum = 0;
+  //int bookNum = 0;
 
   // 검색 버튼 누를 때
   void search(BookService bookService) {
@@ -51,109 +51,107 @@ class _HomePageState extends State<HomePage> {
     if (bookName.isNotEmpty) {
       bookService.getBookList(bookName);
     }
-    setState(() {
-      print(bookService.bookList.length);
-      bookNum = bookService.bookList.length;
-    });
+    // setState(() {
+    //   print(bookService.bookList.length);
+    //   bookNum = bookService.bookList.length;
+    // });
     //print(bookNum);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<BookService>(
-      builder: (context, bookService, child) {
-        return Scaffold(
-            appBar: AppBar(
-              centerTitle: false,
-              backgroundColor: Colors.white,
-              title: Text(
-                'Book Store',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                  fontSize: 24,
-                ),
-              ),
-              bottom: PreferredSize(
-                  preferredSize: Size(double.infinity, 80),
-                  child: SingleChildScrollView(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            'total $bookNum',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.w500,
-                              fontSize: 15,
-                            ),
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          TextField(
-                            decoration: InputDecoration(
-                              hintText: '원하시는 책을 검색해주세요.',
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(5.0)),
-                                borderSide: BorderSide(
-                                  width: 1,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                              suffixIcon: IconButton(
-                                icon: Icon(
-                                  Icons.search,
-                                  color: Colors.grey,
-                                ),
-                                onPressed: (() {
-                                  search(bookService);
-                                }),
-                              ),
-                            ),
-                            controller: _textController,
-                            onSubmitted: (_) {
-                              search(bookService);
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                  )),
+    final bookService = context.watch<BookService>();
+    return Scaffold(
+        appBar: AppBar(
+          centerTitle: false,
+          backgroundColor: Colors.white,
+          title: Text(
+            'Book Store',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+              fontSize: 24,
             ),
-            body: bookName == ''
-                ? _emptyBookNameWidget()
-                : ListView.builder(
-                    itemCount: bookService.bookList.length,
-                    itemBuilder: (context, index) {
-                      Book book = bookService.bookList[index];
-                      return ListTile(
-                        leading: Image.network(
-                          book.thumbnail,
-                          fit: BoxFit.cover,
-                          width: 70,
-                          height: 100,
+          ),
+          bottom: PreferredSize(
+              preferredSize: Size(double.infinity, 80),
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        'total ${bookService.bookList.length}',
+                        //'total $bookNum',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 15,
                         ),
-                        title: Text(
-                          book.title,
-                          style: TextStyle(fontSize: 16),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      TextField(
+                        decoration: InputDecoration(
+                          hintText: '원하시는 책을 검색해주세요.',
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(5.0)),
+                            borderSide: BorderSide(
+                              width: 1,
+                              color: Colors.grey,
+                            ),
+                          ),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              Icons.search,
+                              color: Colors.grey,
+                            ),
+                            onPressed: (() {
+                              search(bookService);
+                            }),
+                          ),
                         ),
-                        subtitle: Text(
-                          book.subTitle,
-                          style: TextStyle(fontSize: 13),
-                        ),
-                        onTap: () {
-                          Uri uri = Uri.parse(book.previewLink);
-                          launchUrl(uri);
+                        controller: _textController,
+                        onSubmitted: (_) {
+                          search(bookService);
                         },
-                      );
+                      ),
+                    ],
+                  ),
+                ),
+              )),
+        ),
+        body: bookName == ''
+            ? _emptyBookNameWidget()
+            : ListView.builder(
+                itemCount: bookService.bookList.length,
+                itemBuilder: (context, index) {
+                  Book book = bookService.bookList[index];
+                  return ListTile(
+                    leading: Image.network(
+                      book.thumbnail,
+                      fit: BoxFit.cover,
+                      width: 70,
+                      height: 100,
+                    ),
+                    title: Text(
+                      book.title,
+                      style: TextStyle(fontSize: 16),
+                    ),
+                    subtitle: Text(
+                      book.subTitle,
+                      style: TextStyle(fontSize: 13),
+                    ),
+                    onTap: () {
+                      Uri uri = Uri.parse(book.previewLink);
+                      launchUrl(uri);
                     },
-                  ));
-      },
-    );
+                  );
+                },
+              ));
   }
 
   Center _emptyBookNameWidget() {

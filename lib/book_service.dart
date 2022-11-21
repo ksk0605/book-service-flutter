@@ -22,7 +22,7 @@ class BookService extends ChangeNotifier {
       String title = items[i]['volumeInfo']['title'] ?? '';
       String subTitle = items[i]['volumeInfo']['subtitle'] ?? '';
       String thumbnail = items[i]['volumeInfo']['imageLinks']['thumbnail'] ??
-          "https://i.ibb.co/2ypYwdr/no-photo.png";
+          'https://i.ibb.co/2ypYwdr/no-photo.png';
       String previewLink = items[i]['volumeInfo']['previewLink'] ?? '';
       //print(previewLink);
       Book book = Book(
